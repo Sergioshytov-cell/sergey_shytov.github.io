@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Туториал по работе с оборудованием</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #ecf0f1;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: #27ae60;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .equipment-screen {
+            position: relative;
+            width: 600px;
+            height: 1024px;
+            background: #262835;
+            color: white;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .additional-content {
+            background: white;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+
+        .screen-content {
+            padding: 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .screen-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #a0a3b1;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .button {
+            padding: 18px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .button-primary {
+            background: #4361ee;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: #3a56d4;
+            transform: translateY(-2px);
+        }
+
+        .button-secondary {
+            background: #3a3e52;
+            color: white;
+        }
+
+        .button-secondary:hover {
+            background: #4a4e65;
+        }
+
+        .button-option {
+            background: #2d3042;
+            border: 2px solid #3a3e52;
+            color: white;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-option:hover {
+            background: #34374a;
+            border-color: #4361ee;
+        }
+
+        .option-description {
+            font-size: 14px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 30px;
+            border-top: 1px solid #3a3e52;
+        }
+
+        .payment-section, .scan-scenario-section {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+        }
+
+        .payment-title, .scan-scenario-title {
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .payment-subtitle, .scan-scenario-subtitle {
+            color: #7f8c8d;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .payment-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-btn, .scan-scenario-btn {
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            padding: 18px 12px;
+            font-size: 16px;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .payment-btn:hover, .scan-scenario-btn:hover {
+            background: #d5dbdb;
+            border-color: #95a5a6;
+        }
+
+        .payment-btn.selected, .scan-scenario-btn.selected {
+            background: #27ae60;
+            color: white;
+            border-color: #219652;
+        }
+
+        .payment-btn.disabled {
+            background: #27ae60;
+            color: white;
+            border-color: #219652;
+            cursor: not-allowed;
+        }
+
+        .selected-payments, .selected-scenario {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        .loader-screen {
+            text-align: center;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 10px solid #3a3e52;
+            border-top: 10px solid #4361ee;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 40px;
+        }
+
+        .loader-text {
+            font-size: 28px;
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .scenario-buttons, .client-payment-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 450px;
+            margin: 0 auto 40px;
+        }
+
+        .scenario-btn, .client-payment-btn {
+            background: #3a3e52;
+            border: 2px solid #4a4e65;
+            border-radius: 15px;
+            padding: 25px;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .scenario-btn:hover, .client-payment-btn:hover {
+            background: #4a4e65;
+            border-color: #5a5e75;
+        }
+
+        .scenario-btn.selected {
+            background: #27ae60;
+            color: white;
+            border-color: #219652;
+        }
+
+        .client-payment-btn {
+            background: #3498db;
+        }
+
+        .client-payment-btn:hover {
+            background: #2980b9;
+        }
+
+        .icon-large {
+            font-size: 100px;
+            margin-bottom: 40px;
+        }
+
+        .instruction-large {
+            font-size: 28px;
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .subinstruction {
+            color: #a0a3b1;
+            margin-bottom: 50px;
+            font-size: 18px;
+        }
+
+        .status-indicator {
+            font-size: 24px;
+            color: #ffffff;
+            margin: 20px 0;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #3a3e52;
+        }
+
+        .status-indicator.success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-indicator.error {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .status-indicator.warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        /* Стили для экрана Магазина 1 - Без меню */
+        .no-add {
+            background-color: #262835;
+            overflow: hidden;
+            width: 100%;
+            min-height: 1024px;
+            position: relative;
+        }
+
+        .no-add .background-glow {
+            position: absolute;
+            top: 313px;
+            left: calc(50% - 301px);
+            width: 598px;
+            height: 478px;
+            filter: blur(149.5px);
+        }
+
+        .no-add .glow-top {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            width: 598px;
+            height: 239px;
+            background-color: #4361ee;
+            border-radius: 119.6px;
+            transform: rotate(180deg);
+        }
+
+        .no-add .glow-bottom {
+            position: absolute;
+            top: 239px;
+            left: 0;
+            width: 598px;
+            height: 239px;
+            background-color: #27ae60;
+            transform: rotate(180deg);
+        }
+
+        .no-add .b-PAY-logo {
+            position: absolute;
+            top: 415px;
+            left: 40px;
+            width: 322px;
+            height: 111px;
+        }
+
+        .no-add .b-PAY-icon {
+            position: absolute;
+            width: 34.41%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url(https://c.animaapp.com/mg6cwy5qC62kqk/img/app.svg);
+            background-size: 100% 100%;
+        }
+
+        .no-add .BRISKLY-icon {
+            position: relative;
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+            background-image: url(https://c.animaapp.com/mg6cwy5qC62kqk/img/briskly-logo.png);
+            background-size: 100% 100%;
+        }
+
+        .no-add .b-PAY {
+            position: absolute;
+            top: 33px;
+            left: 148px;
+            width: 173px;
+            height: 43px;
+        }
+
+        .no-add .qr-code {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            width: 349px;
+            height: 349px;
+            border-radius: 28px;
+            object-fit: cover;
+        }
+
+        .no-add .main-text {
+            position: absolute;
+            top: 546px;
+            left: 40px;
+            width: 489px;
+            font-family: "Manrope", Helvetica;
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 48px;
+            letter-spacing: 0.48px;
+            line-height: 54.7px;
+        }
+
+        .no-add .sub-text {
+            position: absolute;
+            top: 719px;
+            left: 40px;
+            width: 489px;
+            font-family: "Manrope", Helvetica;
+            font-weight: 400;
+            color: #a0a3b1;
+            font-size: 36px;
+            letter-spacing: 0.36px;
+            line-height: 41px;
+        }
+
+        .no-add .start-button {
+            display: flex;
+            width: 520px;
+            height: 72px;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px;
+            position: absolute;
+            top: 912px;
+            left: 40px;
+            background-color: #27ae60;
+            border-radius: 12px;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .no-add .start-button:hover {
+            background-color: #219652;
+            transform: translateY(-1px);
+        }
+
+        .no-add .start-button:active {
+            transform: translateY(0);
+        }
+
+        .no-add .button-text {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            margin-top: -23.65px;
+            margin-bottom: -22.35px;
+            font-family: "Manrope", Helvetica;
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 0.56px;
+            line-height: normal;
+        }
+
+        .no-add .arrow-icon {
+            position: relative;
+            width: 56.82px;
+            height: 23.21px;
+            margin-top: -15.61px;
+            margin-bottom: -15.61px;
+        }
+
+        /* Новые стили для экрана инструкций Магазина 2 */
+        .instructions-screen {
+            background: #262835;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .instructions-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffffff;
+        }
+
+        .instructions-list {
+            color: #a0a3b1;
+            font-size: 24px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            flex-grow: 1;
+        }
+
+        .instructions-list ol {
+            padding-left: 30px;
+        }
+
+        .instructions-list li {
+            margin-bottom: 25px;
+        }
+
+        .instructions-divider {
+            height: 2px;
+            background: #3a3e52;
+            margin: 40px 0;
+        }
+
+        .b-pay-section {
+            background: #2d3042;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+            border-left: 4px solid #4361ee;
+        }
+
+        .b-pay-title {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .b-pay-subtitle {
+            color: #a0a3b1;
+            font-size: 20px;
+        }
+
+        .start-shopping-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 25px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .start-shopping-btn:hover {
+            background: #219652;
+            transform: translateY(-2px);
+        }
+
+        .checkmarks {
+            text-align: center;
+            font-size: 28px;
+            color: #27ae60;
+        }
+
+        /* Стили для экрана корзины товаров */
+        .cart-screen {
+            background: #ffffff;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .btnicon-fill-active {
+            background: #f8f9fa;
+            border: none;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btnicon-fill-active:hover {
+            background: #e9ecef;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px 16px;
+            flex: 1;
+            margin: 0 12px;
+        }
+
+        .search-container .img {
+            margin-right: 8px;
+        }
+
+        .search-text {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .cart-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-image-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-right: 16px;
+        }
+
+        .item-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 12px;
+        }
+
+        .delete-item-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .item-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-display {
+            padding: 8px 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .item-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .cart-footer {
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .pay-button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .pay-button:hover {
+            background: #219652;
+        }
+
+        /* Стили для экрана чека */
+        .receipt-screen {
+            background: #262835;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+
+        .receipt-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .receipt-qr {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            background: white;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .receipt-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .receipt-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .receipt-text {
+            font-size: 18px;
+            color: #a0a3b1;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .scan-animation {
+            animation: scan 2s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-20px); opacity: 0.5; }
+            50% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(20px); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Обучение работе с оборудованием</h1>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+
+        <!-- Экран 1: Выбор магазина -->
+        <div id="screen1" class="screen active">
+            <div style="padding: 40px; text-align: center;">
+                <h2 style="color: #2c3e50; margin-bottom: 30px;">Шаг 1: Выберите магазин</h2>
+                <p style="color: #7f8c8d; margin-bottom: 40px; font-size: 18px;">Выберите магазин для которого нужно пройти обучение:</p>
+                
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <button class="button button-option" onclick="selectShop('shop1')" style="width: 200px;">
+                        🏪 Магазин 1
+                        <div class="option-description">Темная тема оформления</div>
+                    </button>
+                    <button class="button button-option" onclick="selectShop('shop2')" style="width: 200px;">
+                        🏬 Магазин 2
+                        <div class="option-description">Расширенный функционал</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Универсальный экран выбора типа обслуживания -->
+        <div id="screen_shop_type" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="screen-title" id="shopTypeTitle">Выбор типа обслуживания</div>
+                    <div class="screen-text" id="shopTypeText">Выберите тип обслуживания:</div>
+                    
+                    <div class="button-group">
+                        <button class="button button-option" onclick="selectServiceType('no_menu')">
+                            🚫 Без меню
+                            <div class="option-description">Прямой доступ к покупкам</div>
+                        </button>
+                        <button class="button button-option" onclick="selectServiceType('menu_no_payment')">
+                            📋 С меню, но без оплаты
+                            <div class="option-description">Просмотр меню без платежей</div>
+                        </button>
+                        <button class="button button-option" onclick="selectServiceType('menu_with_payment')">
+                            💰 С меню + оплата
+                            <div class="option-description">Полный цикл обслуживания</div>
+                        </button>
+                    </div>
+
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран для Магазина 1: "Без меню" -->
+        <div id="screen_shop1_no_menu" class="screen">
+            <div class="equipment-screen">
+                <main class="no-add">
+                    <div class="background-glow" aria-hidden="true">
+                        <div class="glow-top"></div>
+                        <div class="glow-bottom"></div>
+                    </div>
+                    <header class="b-PAY-logo">
+                        <div class="b-PAY-icon" aria-label="B-PAY приложение">
+                            <div class="BRISKLY-icon"></div>
+                        </div>
+                        <img class="b-PAY" src="https://c.animaapp.com/mg6cwy5qC62kqk/img/b-pay.png" alt="B-PAY логотип" />
+                    </header>
+                    <img class="qr-code" src="https://c.animaapp.com/mg6cwy5qC62kqk/img/qr-code-9.png" alt="QR код для оплаты" />
+                    <h1 class="main-text">Здесь можно оплатить покупки через приложение</h1>
+                    <p class="sub-text">или использовать банковскую карту</p>
+                    <button class="start-button" type="button" aria-label="Начать покупки" onclick="startShopping()">
+                        <span class="button-text">НАЧАТЬ ПОКУПКИ</span>
+                        <img class="arrow-icon" src="https://c.animaapp.com/mg6cwy5qC62kqk/img/vector.svg" alt="" aria-hidden="true" />
+                    </button>
+                </main>
+            </div>
+
+            <div class="additional-content">
+                <div class="payment-section">
+                    <div class="payment-title">Настройка сценариев обучения для Магазина 1</div>
+                    <div class="payment-subtitle">Выберите способы оплаты для отработки (можно выбрать несколько):</div>
+                    
+                    <div class="payment-buttons">
+                        <button class="payment-btn disabled" id="bankCardBtnShop1">💳 Банковская карта</button>
+                        <button class="payment-btn" onclick="togglePayment('obed_ru', 'shop1')">🍽️ Обед.ру</button>
+                        <button class="payment-btn" onclick="togglePayment('yandex_badge', 'shop1')">🎫 Яндекс Бейдж</button>
+                        <button class="payment-btn" onclick="togglePayment('nalanch', 'shop1')">💰 Наланч</button>
+                        <button class="payment-btn" onclick="togglePayment('sbp', 'shop1')">📱 СБП</button>
+                    </div>
+
+                    <div class="selected-payments" id="selectedPaymentsShop1">Выбрано: Банковская карта</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- НОВЫЙ ЭКРАН для Магазина 2: "Без меню" с инструкциями -->
+        <div id="screen_shop2_no_menu" class="screen">
+            <div class="equipment-screen">
+                <div class="instructions-screen">
+                    <div class="instructions-title">Как купить товары в микромаркете</div>
+                    
+                    <div class="instructions-list">
+                        <ol>
+                            <li>Нажмите «Начать покупки»</li>
+                            <li>Приложите карту или смартфон к наклейке «Приложите карту здесь»</li>
+                            <li>Откройте дверь и отсканируйте штрихкод товара через терминал</li>
+                            <li>Нажмите «Продолжить»</li>
+                            <li>Приложите карту или смартфон, чтобы завершить оплату</li>
+                        </ol>
+                    </div>
+
+                    <div class="instructions-divider"></div>
+
+                    <div class="b-pay-section">
+                        <div class="b-pay-title">В-РАУ</div>
+                        <div class="b-pay-subtitle">Удобнее оплачивать товары через приложение</div>
+                    </div>
+
+                    <button class="start-shopping-btn" onclick="startShopping()">
+                        НАЧАТЬ ПОКУПКИ
+                    </button>
+                    
+                    <div class="checkmarks">
+                        (✔) (✔)
+                    </div>
+                </div>
+            </div>
+
+            <div class="additional-content">
+                <div class="payment-section">
+                    <div class="payment-title">Настройка сценариев обучения</div>
+                    <div class="payment-subtitle">Выберите способы оплаты для отработки (можно выбрать несколько):</div>
+                    
+                    <div class="payment-buttons">
+                        <button class="payment-btn disabled" id="bankCardBtn">💳 Банковская карта</button>
+                        <button class="payment-btn" onclick="togglePayment('obed_ru', 'shop2')">🍽️ Обед.ру</button>
+                        <button class="payment-btn" onclick="togglePayment('yandex_badge', 'shop2')">🎫 Яндекс Бейдж</button>
+                        <button class="payment-btn" onclick="togglePayment('nalanch', 'shop2')">💰 Наланч</button>
+                        <button class="payment-btn" onclick="togglePayment('sbp', 'shop2')">📱 СБП</button>
+                    </div>
+
+                    <div class="selected-payments" id="selectedPayments">Выбрано: Банковская карта</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Универсальные экраны для остальных сценариев -->
+        <div id="screen_menu_scenario" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="screen-title" id="menuScenarioTitle">Сценарий меню</div>
+                    <div class="screen-text" id="menuScenarioText">Сценарий будет добавлен позже.</div>
+
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Остальные универсальные экраны -->
+        <div id="screen_client_payment" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="screen-title">Выберите способ оплаты</div>
+                    <div class="screen-text">Клиент выбирает удобный способ оплаты:</div>
+                    
+                    <div class="client-payment-buttons" id="clientPaymentButtons"></div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_bank_connection" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <h1 class="loader-text">Устанавливаем связь с банком</h1>
+                    <div class="loader"></div>
+                    <div class="screen-text">Ожидайте завершения процесса</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep()">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран "Запуск ридера" - ТОЛЬКО для Магазина 2 -->
+        <div id="screen_reader_start" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <div class="loader"></div>
+                    <div class="loader-text">Запуск ридера...</div>
+                    <div class="screen-text">Инициализация карт-ридера для приема платежей</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep('screen_card_hold')">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_card_hold" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="icon-large">💳</div>
+                    <div class="instruction-large">Удерживайте карту 5 секунд после сигнала</div>
+                    <div class="subinstruction">После звукового сигнала приложите карту к терминалу</div>
+                    
+                    <div class="scenario-buttons">
+                        <button class="scenario-btn" onclick="selectScenario('card', 'success')">✅ Карта приложена успешно</button>
+                        <button class="scenario-btn" onclick="selectScenario('card', 'error')">❌ Карта приложена, ошибка</button>
+                        <button class="scenario-btn" onclick="selectScenario('card', 'not_applied')">⚠️ Ничего не приложено</button>
+                    </div>
+
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" id="continueCardBtn" onclick="continueAfterCard()" disabled>Продолжить →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран "Авторизация" -->
+        <div id="screen_auth_after_card" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <div class="loader"></div>
+                    <div class="loader-text" id="authScreenTitle">Авторизация...</div>
+                    <div class="screen-text">Проверка данных карты и обработка платежа</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" id="continueAuthBtn" onclick="continueAfterAuth()">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран "Дверь разблокирована" - ТОЛЬКО для Магазина 2 -->
+        <div id="screen_door_unlocked" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="icon-large">🚪</div>
+                    <div class="instruction-large">Дверь разблокирована</div>
+                    <div class="subinstruction">Можно открыть дверь и выбрать товары</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep('screen_barcode')">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_barcode" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="icon-large scan-animation">📷</div>
+                    <div class="instruction-large">Поднесите штрихкод товара к сканеру</div>
+                    <div class="screen-text">Наведите штрихкод на красную метку сканера или введите штрихкод в ручную</div>
+                    
+                    <div class="status-indicator" id="barcodeTerminalStatus">Ожидание сканирования...</div>
+
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" id="continueBarcodeBtn" onclick="continueAfterBarcode()" disabled>Продолжить →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="additional-content">
+                <div class="scan-scenario-section">
+                    <div class="scan-scenario-title">Выбор сценария сканирования</div>
+                    <div class="scan-scenario-subtitle">Выберите один из сценариев для отработки:</div>
+                    
+                    <div class="scan-scenario-buttons">
+                        <button class="scan-scenario-btn" onclick="selectScenario('barcode', 'success')">✅ Товар успешно отсканирован</button>
+                        <button class="scan-scenario-btn" onclick="selectScenario('barcode', 'not_found')">❌ Товар не найден в системе</button>
+                        <button class="scan-scenario-btn" onclick="selectScenario('barcode', 'not_scanned')">⚠️ Ничего не отсканировано</button>
+                    </div>
+
+                    <div class="selected-scenario" id="selectedScanScenario">Выберите сценарий для продолжения</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                    <button class="button button-primary" id="continueScanBtn" onclick="continueAfterBarcodeSelection()" disabled style="margin-left: 10px;">Далее →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Новый экран корзины товаров -->
+        <div id="screen_cart" class="screen">
+            <div class="equipment-screen">
+                <main class="cart-screen">
+                    <section class="cart-view">
+                        <header class="cart-header">
+                            <button class="btnicon-fill-active" type="button" aria-label="Назад" onclick="previousStep()">
+                                <img class="img" src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconly-light-arrow---left-1.svg" alt="" />
+                            </button>
+                            <div class="search-container" role="search">
+                                <img class="img" src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconly-light-search-1.svg" alt="" />
+                                <span class="search-text">Поиск</span>
+                            </div>
+                            <button class="btnicon-fill-active" type="button" aria-label="Удалить">
+                                <img class="img" src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconly-light-delete-1.svg" alt="" />
+                            </button>
+                        </header>
+                        <section class="cart-content">
+                            <article class="cart-item">
+                                <div class="item-image-container">
+                                    <img class="item-image" src="https://c.animaapp.com/mg7xr4bakDO23T/img/big.png" alt="Томаты розовые" />
+                                </div>
+                                <div class="item-details">
+                                    <header class="item-header">
+                                        <h1 class="item-title">Томаты розовые, супер сладкие, 500 гр.</h1>
+                                        <button class="delete-item-btn" type="button" aria-label="Удалить товар">
+                                            <img src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconui-x.svg" alt="" />
+                                        </button>
+                                    </header>
+                                    <div class="item-controls">
+                                        <div class="quantity-control" role="group" aria-label="Количество товара">
+                                            <button class="quantity-btn" type="button" aria-label="Уменьшить количество">
+                                                <img src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconui-minus-outline.svg" alt="" />
+                                            </button>
+                                            <div class="quantity-display">
+                                                <span aria-label="Количество: 1">1</span>
+                                            </div>
+                                            <button class="quantity-btn" type="button" aria-label="Увеличить количество">
+                                                <img src="https://c.animaapp.com/mg7xr4bakDO23T/img/iconui-plus-outline.svg" alt="" />
+                                            </button>
+                                        </div>
+                                        <div class="item-price" aria-label="Цена: 350 рублей">350,00 ₽</div>
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+                    </section>
+                    <footer class="cart-footer">
+                        <button class="pay-button" type="button" onclick="startPaymentProcess()">
+                            <span>ОПЛАТИТЬ</span>
+                            <span>350,00 ₽</span>
+                        </button>
+                    </footer>
+                </main>
+            </div>
+        </div>
+
+        <!-- Новые экраны для процесса оплаты -->
+        <div id="screen_reader_preparation" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <div class="loader"></div>
+                    <div class="loader-text">Подготовка ридера</div>
+                    <div class="screen-text">Инициализация платежного терминала</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep('screen_reader_launch')">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_reader_launch" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <div class="loader"></div>
+                    <div class="loader-text">Запуск ридера</div>
+                    <div class="screen-text">Активация карт-ридера для приема платежей</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep('screen_payment_card_hold')">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_payment_card_hold" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="icon-large">💳</div>
+                    <div class="instruction-large">Удерживайте карту 5 секунд после сигнала</div>
+                    <div class="subinstruction">После звукового сигнала приложите карту к терминалу для оплаты</div>
+                    
+                    <div class="scenario-buttons">
+                        <button class="scenario-btn" onclick="selectPaymentScenario('success')">✅ Карта приложена, все хорошо</button>
+                        <button class="scenario-btn" onclick="selectPaymentScenario('error')">❌ Карта приложена, ошибка</button>
+                        <button class="scenario-btn" onclick="selectPaymentScenario('not_applied')">⚠️ Ничего не приложено</button>
+                    </div>
+
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" id="continuePaymentCardBtn" onclick="continueAfterPaymentCard()" disabled>Продолжить →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_payment_processing" class="screen">
+            <div class="equipment-screen">
+                <div class="loader-screen">
+                    <div class="loader"></div>
+                    <div class="loader-text">Оплачено, подготовка чека</div>
+                    <div class="screen-text">Формирование электронного чека</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-secondary" onclick="previousStep()">← Назад</button>
+                        <button class="button button-primary" onclick="nextStep('screen_receipt')">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_receipt" class="screen">
+            <div class="equipment-screen">
+                <div class="receipt-screen">
+                    <div class="navigation">
+                        <button class="button button-primary" onclick="completePurchase()" style="margin-bottom: 40px;">Завершить</button>
+                    </div>
+                    <div class="receipt-content">
+                        <div class="receipt-qr">
+                            <img src="https://c.animaapp.com/mg6cwy5qC62kqk/img/qr-code-9.png" alt="QR-код чека" />
+                        </div>
+                        <div class="receipt-title">Оплата успешно завершена</div>
+                        <div class="receipt-text">Чек сформирован и отправлен на email</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen_completion" class="screen">
+            <div class="equipment-screen">
+                <div class="screen-content">
+                    <div class="screen-title">🎉 Обучение завершено!</div>
+                    <div class="screen-text" id="completionMessage">Вы успешно прошли сценарий обучения.</div>
+                    
+                    <div class="navigation">
+                        <button class="button button-primary" onclick="restartTutorial()">Пройти обучение еще раз</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedShop = '';
+        let selectedServiceType = '';
+        let selectedPayments = {
+            'shop1': new Set(['bank_card']),
+            'shop2': new Set(['bank_card'])
+        };
+        let selectedScenarios = {
+            'card': '',
+            'barcode': '',
+            'payment': ''
+        };
+
+        const paymentNames = {
+            'bank_card': 'Банковская карта',
+            'obed_ru': 'Обед.ру',
+            'yandex_badge': 'Яндекс Бейдж',
+            'nalanch': 'Наланч',
+            'sbp': 'СБП'
+        };
+
+        const shopNames = {
+            'shop1': 'Магазин 1',
+            'shop2': 'Магазин 2'
+        };
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSelectedPaymentsDisplay('shop1');
+            updateSelectedPaymentsDisplay('shop2');
+        });
+
+        // Выбор магазина
+        function selectShop(shop) {
+            selectedShop = shop;
+            showScreen('screen_shop_type');
+            document.getElementById('shopTypeTitle').textContent = `${shopNames[shop]}: Выбор типа обслуживания`;
+            document.getElementById('shopTypeText').textContent = `Выберите тип обслуживания для ${shopNames[shop]}:`;
+            currentStep = 2;
+            updateProgress();
+        }
+
+        // Выбор типа обслуживания
+        function selectServiceType(type) {
+            selectedServiceType = type;
+            
+            if (type === 'no_menu') {
+                showScreen(`screen_${selectedShop}_no_menu`);
+            } else {
+                showScreen('screen_menu_scenario');
+                document.getElementById('menuScenarioTitle').textContent = `${shopNames[selectedShop]}: ${getServiceTypeName(type)}`;
+                document.getElementById('menuScenarioText').textContent = 'Сценарий будет добавлен позже.';
+            }
+            
+            currentStep = 3;
+            updateProgress();
+        }
+
+        function getServiceTypeName(type) {
+            const names = {
+                'no_menu': 'Без меню',
+                'menu_no_payment': 'С меню, но без оплаты',
+                'menu_with_payment': 'С меню + оплата'
+            };
+            return names[type] || type;
+        }
+
+        // Переключение выбора способа оплаты
+        function togglePayment(paymentType, shop) {
+            const payments = selectedPayments[shop];
+            
+            if (payments.has(paymentType)) {
+                payments.delete(paymentType);
+                event.target.classList.remove('selected');
+            } else {
+                payments.add(paymentType);
+                event.target.classList.add('selected');
+            }
+            
+            updateSelectedPaymentsDisplay(shop);
+        }
+
+        // Обновление отображения выбранных способов оплаты
+        function updateSelectedPaymentsDisplay(shop) {
+            const selectedElement = document.getElementById(`selectedPayments${shop === 'shop1' ? 'Shop1' : ''}`);
+            const selectedList = Array.from(selectedPayments[shop]).map(payment => paymentNames[payment]);
+            selectedElement.textContent = 'Выбрано: ' + selectedList.join(', ');
+        }
+
+        // Начать покупки
+        function startShopping() {
+            const payments = selectedPayments[selectedShop];
+            
+            if (payments.size > 1) {
+                showClientPaymentSelection();
+            } else {
+                showScreen('screen_bank_connection');
+            }
+            
+            currentStep = 4;
+            updateProgress();
+        }
+
+        // Показать выбор оплаты клиентом
+        function showClientPaymentSelection() {
+            showScreen('screen_client_payment');
+            
+            const container = document.getElementById('clientPaymentButtons');
+            container.innerHTML = '';
+            
+            selectedPayments[selectedShop].forEach(paymentType => {
+                const button = document.createElement('button');
+                button.className = 'client-payment-btn';
+                button.textContent = paymentNames[paymentType];
+                button.onclick = () => {
+                    showScreen('screen_bank_connection');
+                };
+                container.appendChild(button);
+            });
+        }
+
+        // Переход к следующему шагу после банковского соединения
+        function nextStep(targetScreen = null) {
+            if (targetScreen) {
+                showScreen(targetScreen);
+                currentStep++;
+            } else if (selectedShop === 'shop1' && selectedPayments[selectedShop].has('bank_card')) {
+                // Для Магазина 1 с банковской картой - сразу авторизация
+                showScreen('screen_auth_after_card');
+                document.getElementById('authScreenTitle').textContent = 'Авторизация...';
+                currentStep = 6;
+            } else if (selectedShop === 'shop2') {
+                // Для Магазина 2 - запуск ридера
+                showScreen('screen_reader_start');
+                currentStep = 5;
+            } else {
+                // Для других случаев
+                showScreen('screen_card_hold');
+                currentStep = 6;
+            }
+            updateProgress();
+        }
+
+        // Выбор сценария
+        function selectScenario(type, scenario) {
+            selectedScenarios[type] = scenario;
+            
+            // Убираем выделение со всех кнопок этого типа
+            const buttons = document.querySelectorAll(`.${type === 'card' ? 'scenario-btn' : 'scan-scenario-btn'}`);
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Добавляем выделение выбранной кнопке
+            event.target.classList.add('selected');
+            
+            // Активируем кнопки продолжения
+            if (type === 'card') {
+                document.getElementById('continueCardBtn').disabled = false;
+            } else if (type === 'barcode') {
+                document.getElementById('continueScanBtn').disabled = false;
+                document.getElementById('continueBarcodeBtn').disabled = false;
+                
+                // Обновляем отображение выбранного сценария
+                const scenarioTexts = {
+                    'success': '✅ Товар успешно отсканирован',
+                    'not_found': '❌ Товар не найден в системе', 
+                    'not_scanned': '⚠️ Ничего не отсканировано'
+                };
+                
+                document.getElementById('selectedScanScenario').textContent = 'Выбрано: ' + scenarioTexts[scenario];
+                
+                // Обновляем статус в терминале
+                const terminalStatus = document.getElementById('barcodeTerminalStatus');
+                switch(scenario) {
+                    case 'success':
+                        // Для успешного сканирования убираем статус и сразу переходим к корзине
+                        terminalStatus.textContent = '';
+                        terminalStatus.className = 'status-indicator';
+                        break;
+                    case 'not_found':
+                        terminalStatus.textContent = '❌ Товар не найден в системе';
+                        terminalStatus.className = 'status-indicator error';
+                        break;
+                    case 'not_scanned':
+                        terminalStatus.textContent = '⚠️ Сканирование не выполнено';
+                        terminalStatus.className = 'status-indicator warning';
+                        break;
+                }
+            }
+        }
+
+        // Продолжить после выбора сценария с картой
+        function continueAfterCard() {
+            if (!selectedScenarios.card) return;
+            
+            if (selectedScenarios.card === 'success') {
+                showScreen('screen_auth_after_card');
+                // Для Магазина 2 меняем заголовок на "Авторизация"
+                if (selectedShop === 'shop2') {
+                    document.getElementById('authScreenTitle').textContent = 'Авторизация...';
+                }
+                currentStep = 7;
+            } else {
+                showCompletionScreen(`Сценарий завершен. Карта не была обработана (${selectedScenarios.card}).`);
+                currentStep = 10;
+            }
+            updateProgress();
+        }
+
+        // Продолжить после авторизации (разная логика для магазинов)
+        function continueAfterAuth() {
+            if (selectedShop === 'shop1') {
+                // Для Магазина 1 - сразу переходим к сканированию
+                showScreen('screen_barcode');
+                currentStep = 8;
+            } else {
+                // Для Магазина 2 - переходим к разблокировке двери
+                showScreen('screen_door_unlocked');
+                currentStep = 8;
+            }
+            updateProgress();
+        }
+
+        // Продолжить после выбора сценария сканирования
+        function continueAfterBarcodeSelection() {
+            if (!selectedScenarios.barcode) return;
+            
+            if (selectedScenarios.barcode === 'success') {
+                // Для успешного сканирования переходим к корзине
+                showScreen('screen_cart');
+                currentStep = 9;
+            } else {
+                let message = '';
+                switch(selectedScenarios.barcode) {
+                    case 'not_found':
+                        message = 'Обучение завершено. Вы отработали сценарий с ненайденным товаром в системе.';
+                        break;
+                    case 'not_scanned':
+                        message = 'Обучение завершено. Вы отработали сценарий с проблемами сканирования штрихкода.';
+                        break;
+                }
+                
+                showCompletionScreen(message);
+                currentStep = 10;
+            }
+            updateProgress();
+        }
+
+        function continueAfterBarcode() {
+            continueAfterBarcodeSelection();
+        }
+
+        // Начать процесс оплаты из корзины
+        function startPaymentProcess() {
+            showScreen('screen_reader_preparation');
+            currentStep = 10;
+            updateProgress();
+        }
+
+        // Выбор сценария оплаты
+        function selectPaymentScenario(scenario) {
+            selectedScenarios.payment = scenario;
+            
+            // Убираем выделение со всех кнопок
+            const buttons = document.querySelectorAll('#screen_payment_card_hold .scenario-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Добавляем выделение выбранной кнопке
+            event.target.classList.add('selected');
+            
+            // Активируем кнопку продолжения
+            document.getElementById('continuePaymentCardBtn').disabled = false;
+        }
+
+        // Продолжить после выбора сценария оплаты
+        function continueAfterPaymentCard() {
+            if (!selectedScenarios.payment) return;
+            
+            if (selectedScenarios.payment === 'success') {
+                // Успешная оплата - переходим к подготовке чека
+                showScreen('screen_payment_processing');
+                currentStep = 13;
+            } else {
+                // Ошибка или отмена - завершаем обучение
+                let message = '';
+                switch(selectedScenarios.payment) {
+                    case 'error':
+                        message = 'Обучение завершено. Вы отработали сценарий с ошибкой оплаты.';
+                        break;
+                    case 'not_applied':
+                        message = 'Обучение завершено. Вы отработали сценарий с отменой оплаты.';
+                        break;
+                }
+                showCompletionScreen(message);
+                currentStep = 15;
+            }
+            updateProgress();
+        }
+
+        // Завершение покупки из корзины
+        function completePurchase() {
+            showCompletionScreen('Вы успешно прошли обучение по сканированию товаров и оплате банковской картой. Товар был успешно отсканирован, добавлен в корзину и оплачен.');
+            currentStep = 15;
+            updateProgress();
+        }
+
+        // Универсальная функция показа экрана
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Показать экран завершения
+        function showCompletionScreen(message) {
+            document.getElementById('completionMessage').textContent = message;
+            showScreen('screen_completion');
+        }
+
+        // Обновление прогресс-бара
+        function updateProgress() {
+            const totalSteps = 15;
+            const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        // Предыдущий шаг
+        function previousStep() {
+            const screenHistory = [
+                'screen1',
+                'screen_shop_type', 
+                `screen_${selectedShop}_${selectedServiceType}`,
+                'screen_client_payment',
+                'screen_bank_connection',
+                selectedShop === 'shop1' && selectedPayments[selectedShop].has('bank_card') ? 'screen_auth_after_card' : 'screen_reader_start',
+                'screen_card_hold',
+                'screen_auth_after_card',
+                selectedShop === 'shop1' ? 'screen_barcode' : 'screen_door_unlocked',
+                'screen_barcode',
+                'screen_cart',
+                'screen_reader_preparation',
+                'screen_reader_launch',
+                'screen_payment_card_hold',
+                'screen_payment_processing',
+                'screen_receipt',
+                'screen_completion'
+            ];
+
+            if (currentStep > 1) {
+                currentStep--;
+                showScreen(screenHistory[currentStep - 1]);
+                
+                // Сброс состояний при возврате
+                if (currentStep < 7) {
+                    selectedScenarios.card = '';
+                    document.getElementById('continueCardBtn').disabled = true;
+                }
+                if (currentStep < 10) {
+                    selectedScenarios.barcode = '';
+                    document.getElementById('continueScanBtn').disabled = true;
+                    document.getElementById('continueBarcodeBtn').disabled = true;
+                    document.getElementById('selectedScanScenario').textContent = 'Выберите сценарий для продолжения';
+                    document.getElementById('barcodeTerminalStatus').textContent = 'Ожидание сканирования...';
+                    document.getElementById('barcodeTerminalStatus').className = 'status-indicator';
+                }
+                if (currentStep < 14) {
+                    selectedScenarios.payment = '';
+                    document.getElementById('continuePaymentCardBtn').disabled = true;
+                }
+                
+                updateProgress();
+            }
+        }
+
+        // Перезапуск обучения
+        function restartTutorial() {
+            currentStep = 1;
+            selectedShop = '';
+            selectedServiceType = '';
+            selectedPayments = {
+                'shop1': new Set(['bank_card']),
+                'shop2': new Set(['bank_card'])
+            };
+            selectedScenarios = {
+                'card': '',
+                'barcode': '',
+                'payment': ''
+            };
+            
+            showScreen('screen1');
+            updateSelectedPaymentsDisplay('shop1');
+            updateSelectedPaymentsDisplay('shop2');
+            
+            // Сброс UI состояний
+            document.querySelectorAll('.payment-btn:not(.disabled)').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelectorAll('.scenario-btn, .scan-scenario-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById('continueCardBtn').disabled = true;
+            document.getElementById('continueScanBtn').disabled = true;
+            document.getElementById('continueBarcodeBtn').disabled = true;
+            document.getElementById('continuePaymentCardBtn').disabled = true;
+            document.getElementById('selectedScanScenario').textContent = 'Выберите сценарий для продолжения';
+            document.getElementById('barcodeTerminalStatus').textContent = 'Ожидание сканирования...';
+            document.getElementById('barcodeTerminalStatus').className = 'status-indicator';
+            
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
